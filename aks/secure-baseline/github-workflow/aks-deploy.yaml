@@ -26,7 +26,8 @@ jobs:
     name: Deploy AKS cluster and Flux
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
     # Login into your Azure Subscription using your Azure credentials - make sure the credentials has write permissions for the specific resource group/subscription. The credentials should be stored in GitHub Secrets - (Go to Settings Tab ->Secrets)
     # More details on how to create the SPN can be found here - https://github.com/Azure/login#configure-deployment-credentials
