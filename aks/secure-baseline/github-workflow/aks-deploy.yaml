@@ -3,8 +3,6 @@
 
 name: Deploy AKS Secure Baseline cluster stamp and Flux
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   paths:
     - cluster-stamp.json
@@ -14,7 +12,6 @@ on:
   pull_request:
     branches: [ master ]
 
-# Environment Variables
 env:
   RESOURCE_GROUP_LOCATION: '<resource-group-location>' # choose the location where the resource group is going to be created
   RESOURCE_GROUP: '<resource-group-name>' # choose the name for the AKS cluster resource group
@@ -46,7 +43,6 @@ jobs:
     - name: Azure CLI - Deploy AKS cluster
       uses: Azure/cli@v1.0.0
       with:
-        # Specify the script here
         inlineScript: |
          az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
          az deployment group $([[ ${{ github.event_name }} = pull_request ]] && echo what-if --no-pretty-print || echo create) \
