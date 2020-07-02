@@ -51,5 +51,8 @@ jobs:
               geoRedundancyLocation=${{ env.REDUNDANCY_LOCATION }} \
               targetVnetResourceId=${{ env.CLUSTER_VNET_RESOURCE_ID }} \
               k8sRbacAadProfileTenantId=${{ env.K8S_RBAC_AAD_PROFILE_TENANTID }} \
-              k8sRbacAadProfileAdminGroupObjectID=${{ env.K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID }}
+              k8sRbacAadProfileAdminGroupObjectID=${{ env.K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID }} \
+              # Ideally fetch this secret from a platform-managed secret
+              # store such as Azure KeyVault: https://github.com/marketplace/actions/azure-key-vault-get-secrets
+              appGatewayListernerCertificate=${{ secrets.APP_GATEWAY_LISTERNER_CERTIFICATE_BASE64 }}
         azcliversion: 2.6.0
