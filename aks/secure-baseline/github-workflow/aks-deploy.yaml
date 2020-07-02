@@ -1,7 +1,7 @@
 # This workflow will deploy our cluster stamp, without the workload.
 # It assumes the networking spoke is already in place.
 
-name: SecureAKSCluster
+name: Deploy AKS Secure Baseline cluster stamp and Flux
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -30,6 +30,7 @@ env:
 
 jobs:
   deploy:
+    name: Deploy AKS cluster and Flux
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
