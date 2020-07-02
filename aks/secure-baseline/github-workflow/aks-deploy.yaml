@@ -29,7 +29,7 @@ env:
   K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID: '<azure-ad-aks-admin-group-object-id>' # "The Azure AD group object ID that has admin access to the AKS cluster"
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
