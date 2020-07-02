@@ -8,6 +8,7 @@ name: SecureAKSCluster
 on:
   paths:
     - cluster-stamp.json
+    - .github/workflows/aks-deploy.yml
   push:
     branches: [ master ]
   pull_request:
