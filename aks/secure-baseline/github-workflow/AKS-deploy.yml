@@ -15,12 +15,17 @@ on:
 
 # Environment Variables
 env:
-  RGNAMECLUSTER: "{YOUR-CLUSTER-RG-NAME_TO_BE_CREATED}"
-  RGLOCATION: "{REGION}"
-  REDUNDANCY_LOCATION: "{REDUDANCY_REGION}"
-  CLUSTER_VNET_RESOURCE_ID: "/subscriptions/[subscriptionId]/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-hub-spoke-BU0001A0008-00"
-  K8S_RBAC_AAD_PROFILE_TENANTID: "{GUID}"
-  K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID: "{GUID}"
+  RESOURCE_GROUP_LOCATION: '<resource-group-location>' # choose the location where the resource group is going to be created
+  RESOURCE_GROUP: '<resource-group-name>' # choose the name for the AKS cluster resource group
+
+  AKS_LOCATION: '<resource-group-localtion>' # choose the location where the AKS cluster is going to be deployed
+
+  GEO_REDUNDANCY_LOCATION: '<geo-redundancy-location>' # The location for Azure resources that support native geo-redunancy. Should be different than the location parameter and ideally should be a paired region - https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions. This region does not need to support availability zones.
+
+  TARGET_VNET_RESOURCE_ID: '<cluster-spoke-vnet-resource-id>' # The regional network spoke VNet Resource ID that the cluster will be joined to
+
+  K8S_RBAC_AAD_PROFILE_TENANTID: '<tenant-id-with-user-admin-permissions>' # "This is tenant to integrate AKS-managed Azure AD"
+  K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID: '<azure-ad-aks-admin-group-object-id>' # "The Azure AD group object ID that has admin access to the AKS cluster"
 
 jobs:
   build:
@@ -41,15 +46,15 @@ jobs:
       with:
         # Specify the script here
         inlineScript: |
-         az group create --name ${{ env.RGNAMECLUSTER }} --location ${{ env.RGLOCATION }}
+         az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
          az deployment group $([[ ${{ github.event_name }} = pull_request ]] && echo what-if --no-pretty-print || echo create) \
-            --resource-group ${{ env.RGNAMECLUSTER }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
             --template-file "cluster-stamp.json" \
             --name "cluster-0001" \
             --parameters \
-              location=${{ env.RGLOCATION }} \
-              geoRedundancyLocation=${{ env.REDUNDANCY_LOCATION }} \
-              targetVnetResourceId=${{ env.CLUSTER_VNET_RESOURCE_ID }} \
+              location=${{ env.AKS_LOCATION }} \
+              geoRedundancyLocation=${{ env.GEO_REDUNDANCY_LOCATION }} \
+              targetVnetResourceId=${{ env.TARGET_VNET_RESOURCE_ID }} \
               k8sRbacAadProfileTenantId=${{ env.K8S_RBAC_AAD_PROFILE_TENANTID }} \
               k8sRbacAadProfileAdminGroupObjectID=${{ env.K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID }} \
               # Ideally fetch this secret from a platform-managed secret
