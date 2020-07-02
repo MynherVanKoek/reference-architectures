@@ -1,5 +1,36 @@
 # This workflow will deploy our cluster stamp, without the workload.
-# It assumes the networking spoke is already in place.
+#
+# Follow the next steps to use this workflow:
+#
+# 1. Your repository has the following structure.
+#    .
+#    └── aks
+#        └── secure-baseline
+#            ├── .github
+#            │   ├── workflows
+#            │   │   └── aks-deploy.yaml
+#            ├── cluster-baseline-settings
+#            │   ├── aad-pod-identity
+#            │   │   ├── aad-pod-identity.yaml
+#            │   │   └── exceptions
+#            │   │       └── aad-pod-identity-exceptions.yaml
+#            │   ├── akv-secrets-store-csi.yaml
+#            │   ├── config.yaml
+#            │   ├── container-azm-ms-agentconfig.yaml
+#            │   ├── flux.yaml
+#            │   ├── ingress-network-policy.yaml
+#            │   ├── kured-1.4.0-dockerhub.yaml
+#            │   ├── ns-a0008.yaml
+#            │   └── user-facing-cluster-role-aad-group.yaml
+#            └── cluster-stamp.json
+#
+# 2. Ensure you have followed the prior sections before deploying this AKS cluster. This way, you will be capable of setting:
+#    - the secrets values as detailed in the next step.
+#    - the environment variables from the env dictionary.
+#
+# 3. Create the following secrets in your GitHub repository:
+#    - AZURE_CREDENTIALS                        The Azure Service Principal that will deploy the AKS cluster in your Azure subscription. For more information please take a look at https://github.com/Azure/login#configure-deployment-credentials
+#    - APP_GATEWAY_LISTERNER_CERTIFICATE_BASE64 The certificate data for app gateway TLS termination. It is base64.
 
 name: Deploy AKS Secure Baseline cluster stamp and Flux
 
@@ -30,7 +61,6 @@ jobs:
       uses: actions/checkout@v2
 
     # Login into your Azure Subscription using your Azure credentials - make sure the credentials has write permissions for the specific resource group/subscription. The credentials should be stored in GitHub Secrets - (Go to Settings Tab ->Secrets)
-    # More details on how to create the SPN can be found here - https://github.com/Azure/login#configure-deployment-credentials
     - name: Azure Login
       uses: Azure/login@v1.1
       with:
@@ -44,7 +74,7 @@ jobs:
          az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
          az deployment group $([[ ${{ github.event_name }} = pull_request ]] && echo what-if --no-pretty-print || echo create) \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --template-file "cluster-stamp.json" \
+            --template-file "aks/secure-baseline/cluster-stamp.json" \
             --name "cluster-0001" \
             --parameters \
               location=${{ env.AKS_LOCATION }} \
