@@ -63,28 +63,54 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
    az role assignment create --assignee $APP_ID --role 'User Access Administrator'
    ```
 
-   > :bulb: you are going to need the content from `sp.json` file to create the `AZURE_CREDENTIALS` secret from your GitHub repository.
+1. Create `AZURE_CREDENTIALS` secret in your GitHub repository. For more
+   information, please take a look at [Creating encrypted secrets for a repository](https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets-for-a-repository)
 
-1. Copy the file GitHub workflow into the proper directory
+   > :bulb: use the content from `sp.json` file
+
+   ```bash
+   cat sp.json
+   ```
+
+1. Create `APP_GATEWAY_LISTERNER_CERTIFICATE_BASE64` secret in your GitHub repository. For more
+   information, please take a look at [Creating encrypted secrets for a repository](https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets-for-a-repository)
+
+   > :bulb:
+   >  - use the env var value of `APP_GATEWAY_LISTERNER_CERTIFICATE`
+   >  - ideally fetch this secret from a platform-managed secret store such as [Azure KeyVault](https://github.com/marketplace/actions/azure-key-vault-get-secrets)
+
+   ```bash
+   echo $APP_GATEWAY_LISTERNER_CERTIFICATE
+   ```
+
+1. Copy the file GitHub workflow into the expected directory and configured it
 
    ```bash
    mkdir -p .github/workflows
-   cp aks/secure-baseline/github-workflow/aks-deploy.yaml .github/workflows/aks-deploy.yaml
+   TARGET_VNET_RESOURCE_ID=$(az deployment group show -g rg-enterprise-networking-spokes -n spoke-BU0001A0008 --query properties.outputs.clusterVnetResourceId.value -o tsv)
+   cat aks/secure-baseline/github-workflow/aks-deploy.yaml | \
+       sed "s#<resource-group-location>#eastus2#g" | \
+       sed "s#<resource-group-name>#rg-bu0001a0008#g" | \
+       sed "s#<resource-group-localtion>#eastus2#g" | \
+       sed "s#<geo-redundancy-location>#centralus#g" | \
+       sed "s#<cluster-spoke-vnet-resource-id>#$TARGET_VNET_RESOURCE_ID#g" | \
+       sed "s#<tenant-id-with-user-admin-permissions>#$K8S_RBAC_AAD_PROFILE_TENANTID#g" | \
+       sed "s#<azure-ad-aks-admin-group-object-id>#$K8S_RBAC_AAD_PROFILE_ADMIN_GROUP_OBJECTID#g" \
+       > .github/workflows/aks-deploy.yaml
    ```
 
    > :bulb: you might want to convert this GitHub workflow into a template since your organization might need to handle multiple AKS clusters.
    > For more information, please take a look at [Sharing Workflow Templates within your organization](https://docs.github.com/en/actions/configuring-and-managing-workflows/sharing-workflow-templates-within-your-organization)
 
-1. Open the workflow file `.github/workflows/aks-deploy.yaml` and follow the intructions
-
 1. Push the changes to your forked repo
 
    ```bash
    git add .github/workflows/aks-deploy.yaml && git commit -m "setup GitHub CD workflow"
-   git push origin HEAD:master
+   git push origin HEAD:kick-off-workflow
    ```
 
-1. Open a PR against `master`. Once the GitHub wokflow finished successfully, please merge into master. This will trigger the AKS cluster creation.
+1. Open a PR against `master` using the recently pushed changes to the branch `kick-off-workflow`.
+1. Once the GitHub wokflow finished successfully, please procceed by merging this PR into `master. This will trigger the AKS cluster creation.
 
 ### Next step
 
