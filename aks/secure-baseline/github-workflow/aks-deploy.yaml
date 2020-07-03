@@ -75,7 +75,7 @@ jobs:
          az deployment group $([[ ${{ github.event_name }} = pull_request ]] && echo what-if --no-pretty-print || echo create) \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --template-file "aks/secure-baseline/cluster-stamp.json" \
-            --name "cluster-0001" \
+            --name "cluster-stamp-cd" \
             --parameters \
               location=${{ env.AKS_LOCATION }} \
               geoRedundancyLocation=${{ env.GEO_REDUNDANCY_LOCATION }} \
