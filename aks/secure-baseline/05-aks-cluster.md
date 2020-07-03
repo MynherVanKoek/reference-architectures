@@ -43,3 +43,29 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
 ### Next step
 
 :arrow_forward: [Place the cluster under GitOps management](./06-gitops.md)
+
+## Deploy - Option 3 GitHub Actions (fork is required)
+
+1. Copy the file GitHub workflow into the proper directory
+
+   ```bash
+   mkdir -p .github/workflows
+   cp .github/workflows/aks-deploy.yaml
+   ```
+
+1. Open the workflow file `.github/workflows/aks-deploy.yaml` and follow the
+   intructions
+
+1. commit the changes to your repo
+
+   ```bash
+   git add -u && git commit -m "setup GitHub CD workflow"
+   git push origin HEAD:remotes/origin/master
+   ```
+
+1. open a PR and once the GitHub wokflow successfully finished, please merge to
+   master so the AKS cluster creation will be kicked off
+
+### Next step
+
+:arrow_forward: [Workflow Prerequisites](./07-workload-prerequisites.md)
