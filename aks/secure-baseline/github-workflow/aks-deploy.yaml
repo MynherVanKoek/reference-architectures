@@ -68,6 +68,7 @@ jobs:
 
     # Deploy the cluster into your environment, assuming all prerequisites are up and running.
     - name: Azure CLI - Deploy AKS cluster
+      id: aks-cluster
       uses: Azure/cli@v1.0.0
       with:
         inlineScript: |
@@ -85,4 +86,14 @@ jobs:
               # Ideally fetch this secret from a platform-managed secret
               # store such as Azure KeyVault: https://github.com/marketplace/actions/azure-key-vault-get-secrets
               appGatewayListernerCertificate=${{ secrets.APP_GATEWAY_LISTERNER_CERTIFICATE_BASE64 }}
+
+          echo "::set-output name=name::$(az deployment group show --resource-group ${{ env.RESOURCE_GROUP }} -n cluster-stamp-cd --query properties.outputs.aksClusterName.value -o tsv)"
         azcliversion: 2.6.0
+
+    # Set the AKS cluster context
+    - name: Set the AKS cluster context
+      uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{steps.aks-cluster.outputs.name}}
+        resource-group: ${{ env.RESOURCE_GROUP }}
