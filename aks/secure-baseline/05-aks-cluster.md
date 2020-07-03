@@ -69,7 +69,7 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
 
    ```bash
    mkdir -p .github/workflows
-   cp .github/workflows/aks-deploy.yaml
+   cp aks/secure-baseline/github-workflow/aks-deploy.yaml .github/workflows/aks-deploy.yaml
    ```
 
    > :bulb: you might want to convert this GitHub workflow into a template since your organization might need to handle multiple AKS clusters.
@@ -80,8 +80,8 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
 1. Push the changes to your forked repo
 
    ```bash
-   git add -u && git commit -m "setup GitHub CD workflow"
-   git push origin HEAD:remotes/origin/master
+   git add .github/workflows/aks-deploy.yaml && git commit -m "setup GitHub CD workflow"
+   git push origin HEAD:master
    ```
 
 1. Open a PR against `master`. Once the GitHub wokflow finished successfully, please merge into master. This will trigger the AKS cluster creation.
