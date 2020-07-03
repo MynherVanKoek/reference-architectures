@@ -46,6 +46,25 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
 
 ## Deploy - Option 3 GitHub Actions (fork is required)
 
+1. Create the Azure Credentials for the GitHub CD workflow
+
+   ```bash
+   # Create an Azure Service Principal
+   az ad sp create-for-rbac --name "github-workflow-aks-cluster" --sdk-auth --skip-assignment > sp.json
+   export APP_ID=$(grep -oP '(?<="clientId": ").*?[^\\](?=",)' sp.json)
+
+   # Wait for it to get propagated
+   until az ad sp show --id ${APP_ID} &> /dev/null ; do echo "Waiting for Azure AD propagation" && sleep 5; done
+
+   # assign the following Azure Role-Based Access Control (RBAC) built-in role for creating resource groups and place deployments at subscription level
+   az role assignment create --assignee $APP_ID --role 'Contributor'
+
+   # assign the following Azure Role-Based Access Control (RBAC) built-in role  since granting RBAC access to other resources during the cluster creation will be required at subscription level (e.g. AKS-managed Internal Load Balancer, ACR, Managed Identities, etc.)
+   az role assignment create --assignee $APP_ID --role 'User Access Administrator'
+   ```
+
+   > :bulb: you are going to need the content from `sp.json` file to create the `AZURE_CREDENTIALS` secret from your GitHub repository.
+
 1. Copy the file GitHub workflow into the proper directory
 
    ```bash
@@ -53,39 +72,19 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
    cp .github/workflows/aks-deploy.yaml
    ```
 
-1. Open the workflow file `.github/workflows/aks-deploy.yaml` and follow the
-   intructions
+   > :bulb: you might want to convert this GitHub workflow into a template since your organization might need to handle multiple AKS clusters.
+   > For more information, please take a look at [Sharing Workflow Templates within your organization](https://docs.github.com/en/actions/configuring-and-managing-workflows/sharing-workflow-templates-within-your-organization)
 
-1. Commit the changes to your repo
+1. Open the workflow file `.github/workflows/aks-deploy.yaml` and follow the intructions
+
+1. Push the changes to your forked repo
 
    ```bash
    git add -u && git commit -m "setup GitHub CD workflow"
    git push origin HEAD:remotes/origin/master
    ```
 
-1. Create the Azure Credentials for the GitHub CD workflow
-
-   ```bash
-   # Create the Azure Service Principal
-   az ad sp create-for-rbac --name "github-workflow-aks-cluster" --sdk-auth --skip-assignment > sp.json
-   export APP_ID=$(grep -oP '(?<="clientId": ").*?[^\\](?=",)' sp.json)
-
-   # Wait for it to get propagated
-   until az ad sp show --id ${APP_ID} &> /dev/null ; do echo "Waiting for Azure AD propagation" && sleep 5; done
-
-   # assign built in role for creating resource groups and place deployments at subscription level
-   az role assignment create --assignee $APP_ID --role 'Contributor'
-
-   # assign built in role for role assignments at subscription level (e.g. it will be
-   required for AKS-managed Internal Load Balancer, ACR, etc)
-   az role assignment create --assignee $APP_ID --role 'User Access Administrator'
-   ```
-
-1. open a PR and once the GitHub wokflow successfully finished, please merge to
-   master so the AKS cluster creation will be kicked off
-
-   > :bulb: you are going to need the content from `sp.json` file to create the
-   > `AZURE_CREDENTIALS` secret from your GitHub repository.
+1. Open a PR against `master`. Once the GitHub wokflow finished successfully, please merge into master. This will trigger the AKS cluster creation.
 
 ### Next step
 
