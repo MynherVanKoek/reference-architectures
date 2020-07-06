@@ -68,15 +68,15 @@ Now that the [hub-spoke network is provisioned](./04-networking.md), the next st
        cat sp.json
        ```
 
-    1. Create `APP_GATEWAY_LISTERNER_CERTIFICATE_BASE64` secret in your GitHub repository. For more
+    1. Create `APP_GATEWAY_LISTENER_CERTIFICATE_BASE64` secret in your GitHub repository. For more
        information, please take a look at [Creating encrypted secrets for a repository](https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets-for-a-repository)
 
        > :bulb:
-       >  - use the env var value of `APP_GATEWAY_LISTERNER_CERTIFICATE`
+       >  - use the env var value of `APP_GATEWAY_LISTENER_CERTIFICATE`
        >  - ideally fetch this secret from a platform-managed secret store such as [Azure KeyVault](https://github.com/marketplace/actions/azure-key-vault-get-secrets)
 
        ```bash
-       echo $APP_GATEWAY_LISTERNER_CERTIFICATE
+       echo $APP_GATEWAY_LISTENER_CERTIFICATE
        ```
 
     1. Copy the file GitHub workflow into the expected directory and configured it
